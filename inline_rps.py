@@ -37,13 +37,24 @@ def check_win(call, info):
         initiator = "[" + info[4] + "](tg://user?id=" + str(info[2]) + ")"
         opponent = "[" + info[5] + "](tg://user?id=" + str(info[3]) + ")"
 
-        if (info[6] == '✊' and info[7] == '✌️') or (info[6] == '✌️' and info[7] == '✋') or (info[6] == '✋' and info[7] == '✊'):
+        if info[6] == info[7]:
+            msg_text = f'*Камень, ножницы, бумага*\n{initiator} {info[6]} vs {opponent} {info[7]}'
+            msg_text += f'\n🔄 Ничья! Сыграйте снова...'
+            bot.edit_message_text(inline_message_id=call.inline_message_id, text=msg_text + '',
+                parse_mode='Markdown', reply_markup=renew_rps(info[2], str(info[3]), info[4], str(info[5]), '*', '*'))
+            games[call.inline_message_id][1].cancel()
+            bot.answer_callback_query(call.id, 'Ничья!')
+            return
+
+        elif (info[6] == '✊' and info[7] == '✌️') or (info[6] == '✌️' and info[7] == '✋') or (info[6] == '✋' and info[7] == '✊'):
             msg_text = f'*Камень, ножницы, бумага*\n{initiator} {info[6]} vs {opponent} {info[7]}'
             msg_text += f'\n🏆 {initiator} победил!'
             bot.edit_message_text(inline_message_id=call.inline_message_id, text=msg_text + '',
                 parse_mode='Markdown', reply_markup=None)
             games[call.inline_message_id][1].cancel()
             bot.answer_callback_query(call.id, 'Ты победил!')
+            return
+
         else:
             msg_text = f'*Камень, ножницы, бумага*\n{initiator} {info[6]} vs {opponent} {info[7]}'
             msg_text += f'\n🏆 {opponent} победил!'
@@ -51,6 +62,7 @@ def check_win(call, info):
                 parse_mode='Markdown', reply_markup=None)
             games[call.inline_message_id][1].cancel()
             bot.answer_callback_query(call.id, 'Ты победил!')
+            return
             
     bot.answer_callback_query(call.id, 'Ход сделан')
     games[call.inline_message_id][1].cancel()
